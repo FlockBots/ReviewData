@@ -38,8 +38,8 @@ def next_comment(praw_instance, subreddit, n=5):
             delta = datetime.now() - row['date']
             if row['class'] or delta.seconds // 10 * 60 < 1:
                 continue
-
-        db.insert_comment(comment)
+        else:
+            db.insert_comment(comment)
         yield comment
 '''
 Reddit API Authorization

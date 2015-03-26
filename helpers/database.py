@@ -49,20 +49,15 @@ class Database:
             ))
         self.connection.commit()
 
-    def update_comment(self, comment, doc_class, user):
-        submission = comment.submission
-        text = remove_stopwords(comment.body)
-        comment_author = str(comment.author).lower()
-        submission_author = str(submission.author).lower()
-
+    def update_comment(self, comment_id, doc_class, user):
         query = '''UPDATE {} SET 
             class = ?,
             analyzer = ?,
             flag = ?
             WHERE id = ?
-            )'''.format(self.table)
+            '''.format(self.table)
         with closing(self.connection.cursor()) as c:
-            c.execute(query, (doc_class, user, True, comment.id))
+            c.execute(query, (doc_class, user, True, comment_id))
         self.connection.commit()
 
     def get_comment(self, comment):

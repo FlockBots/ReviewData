@@ -4,6 +4,7 @@ from config.keys import config
 from helpers import reddit
 from helpers.database import Database
 from helpers.database import converters
+import requests
 
 
 app = Flask(__name__)
@@ -40,10 +41,6 @@ def classify():
     # get data from server
     # 
 
-@app.route('/test')
-def test():
-    pass
-
 @app.route('/api/get_comment', methods=['POST'])
 def api_get_comment():
     if not reddit.is_authorised(session):
@@ -66,9 +63,15 @@ def api_get_comment():
 def api_put_comment():
     if not reddit.is_authorised(session):
         abort(403)
-    else:
-        return json.jsonify({'status': 'undefined'})
-    # todo: unpack json data, verify and put in database
+    print(request.headers['Content-Type'])
+    if 'application/json' not in request.headers['Content-Type'].lower():
+        abort(415)
+    json_data = request.json
+    print(json_data['comment'])
+    db = Database()
+    db.update_comment(json_data['comment_id'], json_data['class'], json_data['user'])
+    return json.jsonify({'status': 'undefined'})
+    # todo: verify data (e.g. try/except) proper return status
 
 
 app.run(debug=True)
