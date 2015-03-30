@@ -32,7 +32,11 @@ class CommentStore():
             The number of comments in the store
         """
         if self.redis.setbit(self.update_key, 0, 1):
-            return 0
+            return None
+
+        if not self.redis.llen(self.comment_key):
+            for comment_id in self.db.get_unclassified_comments():
+                self.redis.rpush(self.comment_key, comment_id)
 
         for subreddit in keys.config['subreddits']:
             self.update_comments(subreddit, n)
