@@ -55,7 +55,7 @@ def make_auth_url(session):
     return url
 
 def get_token(code):
-    client_auth = requests.auth.HTTPBasicAuth(api['client_id'], api['client_secret'])
+    client_auth = requests.auth.HTTPBasicAuth(config.api['client_id'], config.api['client_secret'])
     post_data = {
         'grant_type': 'authorization_code',
         'code': code,
@@ -63,7 +63,7 @@ def get_token(code):
     }
     headers = {'User-Agent': config.settings['user-agent']}
     response = requests.post(
-        api['access_code_url'],
+        config.api['access_code_url'],
         auth = client_auth,
         headers = headers,
         data = post_data
@@ -72,7 +72,7 @@ def get_token(code):
     return token_json['access_token'] 
 
 def get_username(access_token):
-    headers = {'User-Agent': config['user-agent']}
+    headers = {'User-Agent': config.settings['user-agent']}
     headers.update({ 'Authorization': 'bearer ' + access_token })
     response = requests.get('https://oauth.reddit.com/api/v1/me', headers=headers)
     me_json = response.json()
@@ -85,7 +85,7 @@ def is_authorised(session):
     if not 'access_token' in session:
         return False
     username = get_username(session['access_token'])
-    if not username.lower() in config['allowed']:
+    if not username.lower() in config.settings['allowed']:
         return False
     session['username'] = username
     return True
