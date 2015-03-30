@@ -62,3 +62,22 @@ class CommentStore():
 
             self.db.insert_comment(comment)
             n -= 1
+
+    def next_comment(update_on_empty=True):
+        """ Gets the next unparsed comment from the database.
+
+        Args:
+            update_on_empty: (bool) Whether to fetch new comments if the Redis list is empty.
+                             default: True
+
+        Returns:
+            A sqlite.row object
+        """
+        if not self.redis.llen(self.comment_key):
+            self.update()
+
+        if self.redis.getbit(self.update_key, 0):
+            return None
+
+        comment_id = self.redis.rpop(self.comment_key)
+        return self.db.get_comment_by_id(comment_id)
