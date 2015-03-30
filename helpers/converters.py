@@ -4,8 +4,9 @@ def comment_to_dict(comment):
         'id': comment.id,
         'text': comment.body,
         'author': str(comment.author),
+        'permalink': comment.permalink,
         'submission_author': str(submission.author),
-        'submission_url': submission.url,
+        'url': submission.url,
         'submission_title': submission.title
     }
 
