@@ -2,6 +2,7 @@ from redis import Redis
 from config import keys
 from helpers import reddit
 
+
 class CommentStore():
     def __init__(self, praw_instance=None):
         self.redis = Redis(keys.config['redis_host'])
@@ -11,6 +12,12 @@ class CommentStore():
         self.db = Database()
 
     def is_updating(self):
+        """ Check whether the CommentStore is being updated.
+
+            Returns:
+                Bool: True  if the store is being update
+                      False otherwise
+        """
         return self.redis.getbit(self.update_key, 0)
 
     def update(self, n=100):
@@ -37,8 +44,9 @@ class CommentStore():
             Args:
                 subreddit: (string) name of the subreddit to get comments from
                 n: (integer) number of new comments to get
+            Returns:
+                None
         """
-        size = 0
         comments = reddit.get_comments(self.reddit, subreddit)
         while n:
             try:
