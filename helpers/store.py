@@ -5,7 +5,7 @@ import helpers.reddit
 
 class CommentStore():
     def __init__(self, praw_instance=None):
-        self.redis = Redis(keys.config['redis_host'])
+        self.redis = Redis(config.settings['redis_host'])
         self.update_key = 'update'
         self.comment_key = 'comments'
         self.reddit = praw_instance or helpers.reddit.get_praw()
