@@ -24,7 +24,7 @@ class Database:
                 url VARCHAR,
                 title VARCHAR NOT NULL,
                 class INTEGER,
-                analyzer VARCHAR
+                user VARCHAR
             )'''.format(self.table))
         self.connection.commit()
 
