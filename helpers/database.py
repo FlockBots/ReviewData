@@ -67,8 +67,19 @@ class Database:
         '''
         query = 'SELECT * FROM {} WHERE id = ?'.format(self.table)
         with closing(self.connection.cursor()) as c:
-            c.execute(query, (comment.id,))
+            c.execute(query, (comment_id,))
             result = c.fetchone()
         if result:
             return converters.row_to_dict(result)
         return None
+
+    def get_unclassified_comments(self):
+        '''Gets unclassified comments
+
+        Returns:
+            A list of comment IDs from unclassified comments
+        '''
+        query = 'SELECT id FROM {} WHERE class is null OR user is null'
+        with closing(self.connection.cursor()) as c:
+            rows = c.execute(query)
+        return [row['id'] for row in rows]
