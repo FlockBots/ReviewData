@@ -30,19 +30,14 @@ def get_comments(praw_instance, subreddit):
         A generator of praw.Comment objects that do not occur in the local database yet.
     """
     db = Database()
-    comments = praw_instance.get_comments(subreddit, limit=1000)
+    comments = praw_instance.get_comments(subreddit, limit=None)
     for comment in comments:
         if len(comment.body) < 150:
             continue
 
-        row = db.get_comment(comment)
-        if row:
-            delta = datetime.now() - row['date']
-            if row['class'] or delta.seconds // 10 * 60 < 1:
-                continue
-        else:
-            db.insert_comment(comment)
-        yield comment
+        if not db.get_comment(comment):
+            yield comment
+
 '''
 Reddit API Authorization
 '''
