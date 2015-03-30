@@ -57,8 +57,14 @@ class Database:
             c.execute(query, (doc_class, user, True, comment_id))
         self.connection.commit()
 
-    def get_comment(self, comment):
-        '''Gets the database entry associated with the praw Comment object'''
+    def get_comment_by_id(self, comment_id):
+        '''Gets the database entry where id equals comment_id.
+
+        Args:
+            comment_id: Reddit ID of the comment
+        Returns:
+            Dictionary of the comment's attributes
+        '''
         query = 'SELECT * FROM {} WHERE id = ?'.format(self.table)
         with closing(self.connection.cursor()) as c:
             c.execute(query, (comment.id,))
