@@ -1,3 +1,4 @@
 config/*
 *.db
 helpers/__pycache__/*
+*.TODO
