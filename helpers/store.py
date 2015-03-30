@@ -1,7 +1,7 @@
 from redis import Redis
-from config import keys
-import helpers.reddit
-
+from threading import Thread
+import config
+import helpers
 
 class CommentStore():
     def __init__(self, praw_instance=None):
@@ -35,29 +35,31 @@ class CommentStore():
         Returns:
             The number of comments in the store
         """
+
+        db = helpers.Database()
         if self.redis.llen(self.comment_key) > threshold:
             return self.redis.llen(self.comment_key)
 
         if self.redis.setbit(self.update_key, 0, 1):
             return None
-
         if not self.redis.llen(self.comment_key):
-            for comment_id in self.db.get_unclassified_comments():
+            for comment_id in db.get_unclassified_comments():
                 self.redis.rpush(self.comment_key, comment_id)
 
-        for subreddit in keys.config['subreddits']:
-            self.update_comments(subreddit, n)
+        for subreddit in config.settings['subreddits']:
+            self.update_comments(subreddit, n, db)
 
         self.redis.setbit(self.update_key, 0, 0)
         return self.redis.llen(self.comment_key)
 
-    def update_comments(self, subreddit, n):
+    def update_comments(self, subreddit, n, db):
         """
             Adds new comments from specified subreddit to the local database and CommentStore.
 
             Args:
                 subreddit: (string) name of the subreddit to get comments from
                 n: (integer) number of new comments to get
+                db: helpers.Database instance
             Returns:
                 None
         """
@@ -68,10 +70,11 @@ class CommentStore():
             except StopIteration:
                 break
 
-            self.db.insert_comment(comment)
+            db.insert_comment(comment)
+            self.redis.rpush(self.comment_key, comment.id)
             n -= 1
 
-    def next_comment(update_on_empty=True):
+    def next_comment(self, update_on_empty=True):
         """ Gets the next unparsed comment from the database.
 
         Args:
@@ -81,11 +84,12 @@ class CommentStore():
         Returns:
             A sqlite.row object
         """
-        if not self.redis.llen(self.comment_key):
-            self.update()
-
-        if self.redis.getbit(self.update_key, 0):
-            return None
-
         comment_id = self.redis.rpop(self.comment_key)
-        return self.db.get_comment_by_id(comment_id)
+        comment = None
+        if comment_id:
+            db = helpers.Database()
+            comment = db.get_comment_by_id(comment_id.decode())
+        else:
+            update_thread = Thread(target=self.update)
+            update_thread.start()
+        return comment
