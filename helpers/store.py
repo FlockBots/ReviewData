@@ -22,7 +22,7 @@ class CommentStore():
         """
         return self.redis.getbit(self.update_key, 0)
 
-    def update(self, n=100, threshold=50):
+    def update(self, n=3, threshold=50):
         """
         Adds new comment IDs the CommentStore
 
