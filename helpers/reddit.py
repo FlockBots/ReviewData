@@ -10,14 +10,13 @@ from helpers.database import Database
 from helpers import converters
 from datetime import datetime
 
-
 '''
 PRAW helper functions
 '''
 def get_praw():
-    reddit = praw.Reddit('User-Agent: {}'.format({'User-Agent': config['user-agent']}))
-    reddit.login(flockbot['username'], flockbot['password'])
-    return reddit
+    reddit_praw = praw.Reddit('User-Agent: {}'.format({'User-Agent': config['user-agent']}))
+    reddit_praw.login(flockbot['username'], flockbot['password'])
+    return reddit_praw
 
 def next_comment(praw_instance, subreddit, n=5):
     if not praw_instance:
