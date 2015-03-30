@@ -27,7 +27,7 @@ def reddit_callback():
 def classify():
     if not helpers.reddit.is_authorised(session):
         abort(403)
-    length = helpers.store.update()
+
     return 'Welcome back, ' + session['username']
 
     # get data from server
@@ -54,8 +54,12 @@ def api_put_comment():
     return json.jsonify({'status': 'undefined'})
     # todo: verify data (e.g. try/except) proper return status
 
+def reset():
+    store = helpers.CommentStore()
+    store.reset()
 
 if __name__ == '__main__':
+    reset()
     app.secret_key = config.settings['app_secret']
     praw_instance = helpers.reddit.get_praw()
     db = helpers.Database()

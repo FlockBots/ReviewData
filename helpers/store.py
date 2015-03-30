@@ -9,7 +9,9 @@ class CommentStore():
         self.update_key = 'update'
         self.comment_key = 'comments'
         self.reddit = praw_instance or helpers.reddit.get_praw()
-        self.db = Database()
+
+    def reset(self):
+        self.redis.setbit(self.update_key, 0, 0)
 
     def is_updating(self):
         """ Check whether the CommentStore is being updated.
