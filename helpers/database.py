@@ -32,14 +32,15 @@ class Database:
         # text = remove_stopwords(comment.body)
         info = converters.comment_to_dict(comment)
 
-        query = 'INSERT INTO {} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'.format(self.table)
+        query = 'INSERT INTO {} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'.format(self.table)
         with closing(self.connection.cursor()) as c:
             c.execute(query, (
                 info['id'],
                 info['text'],
                 info['author'].lower(),
                 info['submission_author'].lower(),
-                info['submission_url'],
+                info['permalink'],
+                info['url'],
                 info['submission_title'],
                 doc_class,
                 user
@@ -49,12 +50,11 @@ class Database:
     def update_comment(self, comment_id, doc_class, user):
         query = '''UPDATE {} SET 
             class = ?,
-            analyzer = ?,
-            flag = ?
+            user = ?,
             WHERE id = ?
             '''.format(self.table)
         with closing(self.connection.cursor()) as c:
-            c.execute(query, (doc_class, user, True, comment_id))
+            c.execute(query, (doc_class, user, comment_id))
         self.connection.commit()
 
     def get_comment_by_id(self, comment_id):
@@ -79,7 +79,8 @@ class Database:
         Returns:
             A list of comment IDs from unclassified comments
         '''
-        query = 'SELECT id FROM {} WHERE class is null OR user is null'
+        query = 'SELECT id FROM {} WHERE class is null OR user is null'.format(self.table)
         with closing(self.connection.cursor()) as c:
             rows = c.execute(query)
-        return [row['id'] for row in rows]
+            results = [row['id'] for row in rows]
+        return results
