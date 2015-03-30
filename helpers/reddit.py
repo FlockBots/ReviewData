@@ -1,21 +1,18 @@
-from config.keys import flockbot
-from config.keys import api
-from config.keys import config
+import config
 import praw
 import requests
 import requests.auth
 import urllib.parse
 from uuid import uuid4
-from helpers.database import Database
-from helpers import converters
+import helpers
 from datetime import datetime
 
 '''
 PRAW helper functions
 '''
 def get_praw():
-    reddit_praw = praw.Reddit('User-Agent: {}'.format({'User-Agent': config['user-agent']}))
-    reddit_praw.login(flockbot['username'], flockbot['password'])
+    reddit_praw = praw.Reddit('User-Agent: {}'.format({'User-Agent': config.settings['user-agent']}))
+    reddit_praw.login(config.flockbot['username'], config.flockbot['password'])
     return reddit_praw
 
 def get_comments(praw_instance, subreddit):
@@ -29,7 +26,7 @@ def get_comments(praw_instance, subreddit):
     Returns:
         A generator of praw.Comment objects that do not occur in the local database yet.
     """
-    db = Database()
+    db = helpers.Database()
     comments = praw_instance.get_comments(subreddit, limit=None)
     for comment in comments:
         if len(comment.body) < 150:
@@ -47,14 +44,14 @@ def make_auth_url(session):
     state = str(uuid4())
     session[state] = True
     params = {
-        'client_id': api['client_id'],
+        'client_id': config.api['client_id'],
         'response_type': 'code',
         'state': state,
-        'redirect_uri': config['base_url'] + api['redirect_path'],
+        'redirect_uri': config.settings['base_url'] + config.api['redirect_path'],
         'duration': 'temporary',
         'scope': 'identity'
     }
-    url = api['base_auth_url'] + urllib.parse.urlencode(params)
+    url = config.api['base_auth_url'] + urllib.parse.urlencode(params)
     return url
 
 def get_token(code):
@@ -62,9 +59,9 @@ def get_token(code):
     post_data = {
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': config['base_url'] + api['redirect_path']
+        'redirect_uri': config.settings['base_url'] + config.api['redirect_path']
     }
-    headers = {'User-Agent': config['user-agent']}
+    headers = {'User-Agent': config.settings['user-agent']}
     response = requests.post(
         api['access_code_url'],
         auth = client_auth,

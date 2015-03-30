@@ -1,6 +1,6 @@
 from redis import Redis
 from config import keys
-from helpers import reddit
+import helpers.reddit
 
 
 class CommentStore():
@@ -8,7 +8,7 @@ class CommentStore():
         self.redis = Redis(keys.config['redis_host'])
         self.update_key = 'update'
         self.comment_key = 'comments'
-        self.reddit = praw_instance or reddit.get_praw()
+        self.reddit = praw_instance or helpers.reddit.get_praw()
         self.db = Database()
 
     def is_updating(self):
@@ -20,7 +20,7 @@ class CommentStore():
         """
         return self.redis.getbit(self.update_key, 0)
 
-    def update(self, n=100):
+    def update(self, n=100, threshold=50):
         """
         Adds new comment IDs the CommentStore
 
@@ -28,9 +28,14 @@ class CommentStore():
 
         Args:
             n: (integer) Number of new comments to get.
+            threshold: (integer) only perform update below this numbers
+                        default: 50
         Returns:
             The number of comments in the store
         """
+        if self.redis.llen(self.comment_key) > threshold:
+            return self.redis.llen(self.comment_key)
+
         if self.redis.setbit(self.update_key, 0, 1):
             return None
 
@@ -41,6 +46,7 @@ class CommentStore():
         for subreddit in keys.config['subreddits']:
             self.update_comments(subreddit, n)
 
+        self.redis.setbit(self.update_key, 0, 0)
         return self.redis.llen(self.comment_key)
 
     def update_comments(self, subreddit, n):
@@ -53,7 +59,7 @@ class CommentStore():
             Returns:
                 None
         """
-        comments = reddit.get_comments(self.reddit, subreddit)
+        comments = helpers.reddit.get_comments(self.reddit, subreddit)
         while n:
             try:
                 comment = next(comments)
