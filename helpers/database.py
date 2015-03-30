@@ -16,16 +16,15 @@ class Database:
     def create(self):
         with closing(self.connection.cursor()) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS {} (
-                id VARCHAR,
-                comment_text VARCHAR,
-                comment_author VARCHAR,
-                submission_author VARCHAR,
+                id PRIMARY KEY VARCHAR,
+                comment_text VARCHAR NOT NULL,
+                comment_author VARCHAR NOT NULL,
+                submission_author VARCHAR NOT NULL,
+                permalink VARCHAR NOT NULL,
                 url VARCHAR,
-                title VARCHAR,
+                title VARCHAR NOT NULL,
                 class INTEGER,
-                analyzer VARCHAR,
-                flag INTEGER,
-                date timestamp
+                analyzer VARCHAR
             )'''.format(self.table))
         self.connection.commit()
 
@@ -43,9 +42,7 @@ class Database:
                 info['submission_url'],
                 info['submission_title'],
                 doc_class,
-                user,
-                doc_class is not None,
-                datetime.now()
+                user
             ))
         self.connection.commit()
 
