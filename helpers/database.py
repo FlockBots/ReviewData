@@ -16,7 +16,7 @@ class Database:
     def create(self):
         with closing(self.connection.cursor()) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS {} (
-                id PRIMARY KEY VARCHAR,
+                id VARCHAR PRIMARY KEY,
                 comment_text VARCHAR NOT NULL,
                 comment_author VARCHAR NOT NULL,
                 submission_author VARCHAR NOT NULL,
