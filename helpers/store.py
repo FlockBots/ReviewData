@@ -27,7 +27,9 @@ class CommentStore():
         Fetches new comments from Reddit and adds them to the local database and CommentStore.
 
         Args:
-            n: (integer) Number of new comments to get. 
+            n: (integer) Number of new comments to get.
+        Returns:
+            The number of comments in the store
         """
         if self.redis.setbit(self.update_key, 0, 1):
             return 0
