@@ -32,7 +32,7 @@ def get_comments(praw_instance, subreddit):
         if len(comment.body) < 150:
             continue
 
-        if not db.get_comment(comment):
+        if not db.get_comment_by_id(comment.id):
             yield comment
 
 '''
