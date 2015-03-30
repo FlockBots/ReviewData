@@ -20,7 +20,7 @@ def reddit_callback():
         # Uh-oh, this request wasn't started by us!
         abort(403)
     code = request.args.get('code')
-    session['access_token'] = reddit.get_token(code)
+    session['access_token'] = helpers.reddit.get_token(code)
     return redirect(url_for('classify'))
 
 @app.route('/app/')
