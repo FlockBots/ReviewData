@@ -18,14 +18,17 @@ def get_praw():
     reddit_praw.login(flockbot['username'], flockbot['password'])
     return reddit_praw
 
-def next_comment(praw_instance, subreddit, n=5):
-    if not praw_instance:
-        praw_instance = get_praw()
-    # Get the latest comments on Reddit
-    # If it's in the database
-    #   - if it's not analyzed and old enough, grab it anyway
-    #   - otherwise, grab a new one
+def get_comments(praw_instance, subreddit):
+    """ Gets unparsed comments from Reddit and sets them up in a Redis list.
 
+    Args:
+        praw_instance: The instance of the reddit API wrapper 
+        subreddit: (string) The name of the subreddit to fetch comments from
+        n: (int) the maximum number of comments to fetch.
+
+    Returns:
+        A generator of praw.Comment objects that do not occur in the local database yet.
+    """
     db = Database()
     comments = praw_instance.get_comments(subreddit, limit=1000)
     for comment in comments:
