@@ -83,6 +83,8 @@ def get_username(access_token):
         return 'ServerError'
 
 def is_authorised(session):
+    if 'username' in session:
+        return True
     if not 'access_token' in session:
         return False
     username = get_username(session['access_token'])
