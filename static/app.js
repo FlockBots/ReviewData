@@ -64,6 +64,17 @@ $(document).ready(function(){
         app.putComment(data);
     });
 
+    $(document).keyup(function(e){
+        var key = e.keyCode || e.which
+        if(key == 89 || key == 78){
+            var data = {
+                doc_class: key == 89,
+                comment_id: $('#comment').attr('data-id')
+            }
+            app.putComment(data);
+        }
+    })
+
     if($('#comment').length > 0){
         app.getComment();
     }
