@@ -80,7 +80,7 @@ def get_username(access_token):
     try:
         return me_json['name']
     except KeyError:
-        return 'ServerError'
+        None
 
 def is_authorised(session):
     if 'username' in session:
@@ -88,6 +88,9 @@ def is_authorised(session):
     if not 'access_token' in session:
         return False
     username = get_username(session['access_token'])
+    if not username:
+        session.pop('access_token')
+        return False
     if username.lower() in config.settings['blacklist']:
         return False
     session['username'] = username
