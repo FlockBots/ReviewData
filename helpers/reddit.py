@@ -76,16 +76,17 @@ def get_username(access_token):
     headers.update({ 'Authorization': 'bearer ' + access_token })
     response = requests.get('https://oauth.reddit.com/api/v1/me', headers=headers)
     me_json = response.json()
+    print(me_json)
     try:
         return me_json['name']
     except KeyError:
-        return ''
+        return 'ServerError'
 
 def is_authorised(session):
     if not 'access_token' in session:
         return False
     username = get_username(session['access_token'])
-    if not username.lower() in config.settings['allowed']:
+    if username.lower() in config.settings['blacklist']:
         return False
     session['username'] = username
     return True

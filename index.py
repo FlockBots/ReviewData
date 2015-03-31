@@ -1,14 +1,24 @@
-from flask import Flask, session, request, redirect, abort, url_for, json
+from flask import Flask, session, request, redirect, abort, url_for, json, render_template
 import helpers
 import config
 import requests
+from flask import Markup
+from markdown import markdown
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    text = '<a href="%s">Authenticate with reddit</a>'
-    return text % helpers.reddit.make_auth_url(session) 
+    if not helpers.reddit.is_authorised(session):
+        auth_url = helpers.reddit.make_auth_url(session) 
+        return render_template('index.html', auth_url=auth_url)
+    return render_template('index.html', name=session['username'])
+
+@app.route('/403')
+@app.errorhandler(403)
+def forbidden(e=None):
+    auth_url = helpers.reddit.make_auth_url(session) 
+    return render_template('403.html', auth_url=auth_url)
 
 @app.route(config.api['redirect_path'])
 def reddit_callback():
@@ -27,32 +37,34 @@ def reddit_callback():
 def classify():
     if not helpers.reddit.is_authorised(session):
         abort(403)
+    
+    return render_template('classify.html', name=session['username'])
 
-    return 'Welcome back, ' + session['username']
-
-    # get data from server
-    # 
-
-@app.route('/api/get_comment', methods=['POST'])
+@app.route('/api/get_comment')
 def api_get_comment():
     if not helpers.reddit.is_authorised(session):
         abort(403)
-    return_data = {'status': 'ready'}
-    
-    return json.jsonify(return_data)
+    store = helpers.CommentStore()
+    comment = store.next_comment()
+    data = {}
+    if not comment:
+        data['status'] = 'updating'
+    else:
+        comment['comment_text'] = Markup(markdown(comment['comment_text']))
+        data['status'] = 'ready'
+        data['comment'] = comment
+    return json.jsonify(data)
 
 @app.route('/api/put_comment', methods=['POST'])
 def api_put_comment():
     if not helpers.reddit.is_authorised(session):
         abort(403)
-    print(request.headers['Content-Type'])
     if 'application/json' not in request.headers['Content-Type'].lower():
         abort(415)
     print(request.json['comment'])
     db = Database()
     db.update_comment(request.json['comment_id'], request.json['class'], request.json['user'])
     return json.jsonify({'status': 'undefined'})
-    # todo: verify data (e.g. try/except) proper return status
 
 def reset():
     store = helpers.CommentStore()
