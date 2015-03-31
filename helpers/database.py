@@ -50,7 +50,7 @@ class Database:
     def update_comment(self, comment_id, doc_class, user):
         query = '''UPDATE {} SET 
             class = ?,
-            user = ?,
+            user = ?
             WHERE id = ?
             '''.format(self.table)
         with closing(self.connection.cursor()) as c:
