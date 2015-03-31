@@ -1,6 +1,8 @@
 var app = app || {}
 
 $(document).ready(function(){
+    app.ready = true;
+
     app.updateLayout = function(response){
         console.log('Updating Layout');
         var status = response['status'];
@@ -13,6 +15,7 @@ $(document).ready(function(){
     }
 
     app.setLoading = function(){
+        app.ready = false;
         console.log('Application is Updating');
         $('#comment').attr('data-id', '');
         $('#comment #title').attr('href', '');
@@ -25,6 +28,7 @@ $(document).ready(function(){
     }
 
     app.commentToHtml = function(comment){
+        app.ready = true;
         console.log(comment)
         $('#comment').attr('data-id', comment['id']);
         $('#comment #title').attr('href', comment['permalink']);
@@ -40,14 +44,32 @@ $(document).ready(function(){
             method: 'GET',
             success: app.updateLayout,
             fail: app.setLoading,
-            dataType: 'json'
         })
     }
-    app.putComment = function(){
-
+    app.putComment = function(data){
+        console.log(data);
+        $.ajax({
+            url: '/api/put_comment',
+            method: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(data)
+        }).always(app.getComment);
     }
 
     $('.button').click(function(e){
-        app.getComment();
+        if(!app.ready){
+            app.getComment();
+        }
+        var data = {
+            doc_class: $(this).attr("id") == 'is_review',
+            comment_id: $('#comment').attr('data-id')
+        }
+        app.putComment(data);
     });
+
+    if($('#comment').length > 0){
+        app.getComment();
+    }
+
 });
