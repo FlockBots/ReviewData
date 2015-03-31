@@ -1,0 +1,88 @@
+@font-face {
+    font-family: 'Omnes';
+    src: url('fonts/omnes-webfont.eot');
+    src: url('fonts/omnes-webfont.eot?#iefix') format('embedded-opentype'),
+    url('fonts/omnes-webfont.svg#omnesregular') format('svg'),
+    url('fonts/omnes-webfont.woff') format('woff'),
+    url('fonts/omnes-webfont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+h1{
+    margin-top: 5px;
+}
+
+h1 a, h1 a:hover, h2 a, h2 a:hover{
+    color: black;
+}
+a{
+    color: #D75F00;
+    text-decoration: none;
+}
+
+a:hover{
+    color: #B73F00;
+}
+body{
+    font-family: 'Omnes', 'Helvetica', 'Arial', 'sans-serif';
+    line-height: 180%;
+}
+
+.user{
+    margin-left: 50px;
+}
+
+#container{
+    width: 960px;
+    margin: 0 auto;
+    font-family: ;
+}
+
+#header h1{
+    float: left;
+}
+#nav{
+    float: right;
+}
+
+ul{
+    list-style-type: none;
+    display: inline;
+}
+
+ul li{
+    display: inline;
+}
+
+#content{
+    clear: both;
+}
+
+.faq_item{
+    padding: 15px;
+    background: #fafafa;
+    margin-bottom: 50px;
+}
+
+.faq_item h3{
+    padding-top: 0; margin-top: 0;
+}
+
+.faq_item p{
+    margin-bottom: 0; padding-bottom: 0;
+}
+
+#comment{
+    border: 1px solid #fafafa;
+    background: #fdfdfd;
+    padding: 15px;
+}
+
+#comment h2{
+    margin-bottom: 0;
+}
+
+#comment #text{
+    margin-top: 20px;
+}
