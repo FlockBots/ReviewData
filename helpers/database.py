@@ -36,12 +36,12 @@ class Database:
         with closing(self.connection.cursor()) as c:
             c.execute(query, (
                 info['id'],
-                info['text'],
-                info['author'].lower(),
+                info['comment_text'],
+                info['comment_author'].lower(),
                 info['submission_author'].lower(),
                 info['permalink'],
                 info['url'],
-                info['submission_title'],
+                info['title'],
                 doc_class,
                 user
             ))
