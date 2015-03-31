@@ -4,7 +4,6 @@ $(document).ready(function(){
     app.ready = true;
 
     app.updateLayout = function(response){
-        console.log('Updating Layout');
         var status = response['status'];
         if(status == 'ready'){
             app.commentToHtml(response['comment']);
@@ -16,7 +15,6 @@ $(document).ready(function(){
 
     app.setLoading = function(){
         app.ready = false;
-        console.log('Application is Updating');
         $('#comment').attr('data-id', '');
         $('#comment #title').attr('href', '');
         $('#comment #title').text('Loading new comments...');
@@ -29,7 +27,6 @@ $(document).ready(function(){
 
     app.commentToHtml = function(comment){
         app.ready = true;
-        console.log(comment)
         $('#comment').attr('data-id', comment['id']);
         $('#comment #title').attr('href', comment['permalink']);
         $('#comment #title').text(comment['title']);
@@ -47,7 +44,6 @@ $(document).ready(function(){
         })
     }
     app.putComment = function(data){
-        console.log(data);
         $.ajax({
             url: '/api/put_comment',
             method: 'POST',
