@@ -114,3 +114,13 @@ ul li{
 #is_comment:hover{
     background: #F73F00;
 }
+
+#comment{
+    width: 100%;
+}
+
+#comment img{
+    display: block;
+    margin: 20px auto;
+    width: 128px;
+}
