@@ -33,6 +33,12 @@ def reddit_callback():
     session['access_token'] = helpers.reddit.get_token(code)
     return redirect(url_for('classify'))
 
+@app.route('/logout')
+def logout():
+    session.pop('access_token')
+    session.pop('username')
+    return redirect(url_for('index'))
+
 @app.route('/app/')
 def classify():
     if not helpers.reddit.is_authorised(session):
