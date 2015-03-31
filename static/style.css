@@ -86,3 +86,31 @@ ul li{
 #comment #text{
     margin-top: 20px;
 }
+
+.button{
+    padding: 15px;
+    color: white;
+    transition: background 0.3s;
+    cursor: pointer;
+    margin: 0 180px;
+}
+
+.button:hover{
+    color: white;
+}
+
+#is_review{
+    background: #61B332;
+}
+
+#is_review:hover{
+    background: #41D332;
+}
+
+#is_comment{
+    background: #D75F00;
+}
+
+#is_comment:hover{
+    background: #F73F00;
+}
