@@ -16,7 +16,10 @@
                 
                 {% if name %}
                     <li>
-                        <span class="user">Welcome back, <a href="{{ url_for('classify') }}">{{ name }}</a>!</span>
+                        <span class="user">Welcome back,
+                            <a href="{{ url_for('classify') }}">{{ name }}</a>
+                        ! (<a href="{{ url_for('logout') }}">logout</a>)
+                        </span>
                     </li>
                 {% else %}
                     <li>
