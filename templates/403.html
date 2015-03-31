@@ -1,0 +1,7 @@
+{% extends 'layout.html' %}
+{% block title %}Forbidden{% endblock %}
+
+{% block content %}
+<h2>Uh-oh!</h2>
+<p>You're not logged in! Please do so <a href="{{ auth_url }}">first</a> or return to the <a href="{{ url_for('index') }}">home</a> page.</p>
+{% endblock %}
