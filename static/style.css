@@ -1,12 +1,6 @@
-@font-face {
-    font-family: 'Omnes';
-    src: url('fonts/omnes-webfont.eot');
-    src: url('fonts/omnes-webfont.eot?#iefix') format('embedded-opentype'),
-    url('fonts/omnes-webfont.svg#omnesregular') format('svg'),
-    url('fonts/omnes-webfont.woff') format('woff'),
-    url('fonts/omnes-webfont.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+body{
+    font-family: 'Open Sans', 'Helvetica', 'Arial', 'sans-serif';
+    line-height: 180%;
 }
 
 h1{
@@ -23,10 +17,6 @@ a{
 
 a:hover{
     color: #B73F00;
-}
-body{
-    font-family: 'Omnes', 'Helvetica', 'Arial', 'sans-serif';
-    line-height: 180%;
 }
 
 .user{
