@@ -82,4 +82,4 @@ if __name__ == '__main__':
     praw_instance = helpers.reddit.get_praw()
     db = helpers.Database()
     db.create()
-    app.run(host='0.0.0.0', port=80)
+    app.run(host=config.settings['host'], port=config.settings['port'])
