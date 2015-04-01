@@ -14,6 +14,17 @@ class CommentStore():
     def reset(self):
         self.redis.setbit(self.update_key, 0, 0)
 
+    def get_comment_id():
+        """
+        Gets a comment ID from the store
+
+        Returns:
+            A string containing the ID
+        """
+        comment_id = self.redis.rpop(self.comment_key)
+        self.redis.srem(self.set_key, comment_id)
+        return comment_id
+
     def add_comment_id(comment_id):
         """
         Adds a new comment to the store.
@@ -95,7 +106,7 @@ class CommentStore():
         Returns:
             A sqlite.row object
         """
-        comment_id = self.redis.rpop(self.comment_key)
+        comment_id = self.get_comment_id()
         comment = None
         if comment_id:
             db = helpers.Database()
