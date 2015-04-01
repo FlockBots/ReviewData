@@ -8,19 +8,26 @@ class CommentStore():
         self.redis = Redis(config.settings['redis_host'])
         self.update_key = 'update'
         self.comment_key = 'comments'
+        self.set_key = 'comments_set'
         self.reddit = praw_instance or helpers.reddit.get_praw()
 
     def reset(self):
         self.redis.setbit(self.update_key, 0, 0)
 
-    def is_updating(self):
-        """ Check whether the CommentStore is being updated.
-
-            Returns:
-                Bool: True  if the store is being update
-                      False otherwise
+    def add_comment_id(comment_id):
         """
-        return self.redis.getbit(self.update_key, 0)
+        Adds a new comment to the store.
+
+        Only adds the new comment if it's not already present
+
+        Args:
+            comment_id: (string) the ID of the comment.
+
+        Returns:
+            None
+        """
+        if self.redis.sadd(self.set_key, comment_id):
+            self.redis.rpush(self.comment_key, comment_id)
 
     def update(self, n=3, threshold=50):
         """
@@ -40,15 +47,19 @@ class CommentStore():
         if self.redis.llen(self.comment_key) > threshold:
             return self.redis.llen(self.comment_key)
 
+        # Only start updating if it's not being updated yet.
         if self.redis.setbit(self.update_key, 0, 1):
             return None
-        if not self.redis.llen(self.comment_key):
-            for comment_id in db.get_unclassified_comments():
-                self.redis.rpush(self.comment_key, comment_id)
 
+        # Add unclassified comments first
+        for comment_id in db.get_unclassified_comments():
+            self.add_comment_id(self.comment_key, comment_id)
+
+        # Add new comments from subreddits
         for subreddit in config.settings['subreddits']:
             self.update_comments(subreddit, n, db)
 
+        # Done updating, reset update bit
         self.redis.setbit(self.update_key, 0, 0)
         return self.redis.llen(self.comment_key)
 
@@ -89,7 +100,10 @@ class CommentStore():
         if comment_id:
             db = helpers.Database()
             comment = db.get_comment_by_id(comment_id.decode())
-        else:
+
+        # If there are little comments available, start updating.
+        if self.redis.llen(self.comment_key) < 10:
             update_thread = Thread(target=self.update)
             update_thread.start()
+            
         return comment
