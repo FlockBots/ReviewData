@@ -14,7 +14,7 @@ class CommentStore():
     def reset(self):
         self.redis.setbit(self.update_key, 0, 0)
 
-    def get_comment_id():
+    def get_comment_id(self):
         """
         Gets a comment ID from the store
 
@@ -25,7 +25,7 @@ class CommentStore():
         self.redis.srem(self.set_key, comment_id)
         return comment_id
 
-    def add_comment_id(comment_id):
+    def add_comment_id(self, comment_id):
         """
         Adds a new comment to the store.
 
