@@ -64,7 +64,7 @@ class CommentStore():
 
         # Add unclassified comments first
         for comment_id in db.get_unclassified_comments():
-            self.add_comment_id(self.comment_key, comment_id)
+            self.add_comment_id(comment_id)
 
         # Add new comments from subreddits
         for subreddit in config.settings['subreddits']:
