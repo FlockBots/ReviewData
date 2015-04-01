@@ -29,7 +29,7 @@ class CommentStore():
         if self.redis.sadd(self.set_key, comment_id):
             self.redis.rpush(self.comment_key, comment_id)
 
-    def update(self, n=3, threshold=50):
+    def update(self, n=100, threshold=50):
         """
         Adds new comment IDs the CommentStore
 
@@ -105,5 +105,5 @@ class CommentStore():
         if self.redis.llen(self.comment_key) < 10:
             update_thread = Thread(target=self.update)
             update_thread.start()
-            
+
         return comment
