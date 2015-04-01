@@ -93,7 +93,7 @@ class CommentStore():
                 break
 
             db.insert_comment(comment)
-            self.redis.rpush(self.comment_key, comment.id)
+            self.add_comment_id(comment.id)
             n -= 1
 
     def next_comment(self, update_on_empty=True):
