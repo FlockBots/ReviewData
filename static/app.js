@@ -46,6 +46,7 @@ $(document).ready(function(){
         })
     }
     app.putComment = function(data){
+        $('#comment #text').html('<img src="/static/load.gif" alt="Loading..."/>');
         $.ajax({
             url: '/api/put_comment',
             method: 'POST',
