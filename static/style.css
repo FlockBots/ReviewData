@@ -41,6 +41,7 @@ body{
 
 #header h1{
     float: left;
+    margin-top: 10px;
 }
 #nav{
     float: right;
@@ -74,9 +75,11 @@ ul li{
 }
 
 #comment{
+    width: 100%;
     border: 1px solid #fafafa;
     background: #fdfdfd;
     padding: 15px;
+    margin-top: 0px;
 }
 
 #comment h2{
@@ -88,11 +91,12 @@ ul li{
 }
 
 .button{
+    display: inline-block;
     padding: 15px;
     color: white;
     transition: background 0.3s;
     cursor: pointer;
-    margin: 0 180px;
+    margin: 30px 180px -20px 180px;
 }
 
 .button:hover{
@@ -113,10 +117,6 @@ ul li{
 
 #is_comment:hover{
     background: #F73F00;
-}
-
-#comment{
-    width: 100%;
 }
 
 #comment img{
