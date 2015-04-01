@@ -10,7 +10,7 @@
 }
 
 h1{
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 h1 a, h1 a:hover, h2 a, h2 a:hover{
@@ -96,7 +96,9 @@ ul li{
     color: white;
     transition: background 0.3s;
     cursor: pointer;
-    margin: 30px 180px -20px 180px;
+    margin: 35px 0 15px 0;
+    width: 100%;
+    text-align: center;
 }
 
 .button:hover{

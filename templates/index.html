@@ -2,45 +2,47 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <h2>Welcome</h2>
-    <p>
-        Thank you for visiting this website, as that probably means you are interested in
-        helping me improve <a href="http://www.reddit.com/u/review_bot">ReviewBot</a>.
-    </p>
+    <div class="large-12 columns">
+        <h2>Welcome</h2>
+        <p>
+            Thank you for visiting this website, as that probably means you are interested in
+            helping me improve <a href="http://www.reddit.com/u/review_bot">ReviewBot</a>.
+        </p>
 
-    <h2>FAQ</h2>
-    <div class="faq_item">
-        <h3>How can I help?</h3>
-        <p>
-            ReviewBot analyzes a comment and tries to determine whether it is a whisky review or not. 
-            In order to do so it needs to know what a review vaguely looks like. The more comments he has seen that are reviews the better. Unfortunately gathering all exact comment reviews is quite the chore. With this website you can help me out by just analyzing a few comments and clicking a button to tell the bot whether it is a review or not.
-        </p>
-    </div>
+        <h2>FAQ</h2>
+        <div class="faq_item">
+            <h3>How can I help?</h3>
+            <p>
+                ReviewBot analyzes a comment and tries to determine whether it is a whisky review or not. 
+                In order to do so it needs to know what a review vaguely looks like. The more comments he has seen that are reviews the better. Unfortunately gathering all exact comment reviews is quite the chore. With this website you can help me out by just analyzing a few comments and clicking a button to tell the bot whether it is a review or not.
+            </p>
+        </div>
 
-    <div class="faq_item">
-    <h3>Why do I need to login with my Reddit account?</h3>
-        <p>
-            Just to make sure anyone helping me out is doing so in good faith, I like to keep track
-            of your username. It also makes it easier to delete faulty analyzed comments, in case of someone thinks
-            he/she is clever. As the login page shows, I won't get your password or any other data besides your username.
-        </p>
-    </div>
+        <div class="faq_item">
+        <h3>Why do I need to login with my Reddit account?</h3>
+            <p>
+                Just to make sure anyone helping me out is doing so in good faith, I like to keep track
+                of your username. It also makes it easier to delete faulty analyzed comments, in case of someone thinks
+                he/she is clever. As the login page shows, I won't get your password or any other data besides your username.
+            </p>
+        </div>
 
-    <div class="faq_item">
-    <h3>Okay, that seems fair. Where do I start?</h3>
-        <p>
-            Once you have logged in, you should see your username in orange. That's the link to the <a href="{{ url_for('classify') }}">classification</a> page. Once you arrive there, you will be served a fresh comment. Click one of the two buttons (whichever is appropriate) and you'll get the next one. You can stop whenever you like, of course.
-        </p>
-        <p><i>Hint: Press <b>y</b> to classify the comment as a review or <b>n</b> to classify it as a comment instead of clicking the buttons!</i></p>
-    </div>
+        <div class="faq_item">
+        <h3>Okay, that seems fair. Where do I start?</h3>
+            <p>
+                Once you have logged in, you should see your username in orange. That's the link to the <a href="{{ url_for('classify') }}">classification</a> page. Once you arrive there, you will be served a fresh comment. Click one of the two buttons (whichever is appropriate) and you'll get the next one. You can stop whenever you like, of course.
+            </p>
+            <p><i>Hint: Press <b>y</b> to classify the comment as a review or <b>n</b> to classify it as a comment instead of clicking the buttons!</i></p>
+        </div>
 
-    <div class="faq_item">
-        <h3>Clicking buttons is boring. Can I help you out in some other way?</h3>
-        <p>
-            Of course you can! Using ReviewBot a lot and keeping me up to date with any bugs that might occur is very important. I rarely ever notice the bugs myself once the bot has gone live. 
-        </p>
-        <p>
-            Another way is to contribute to the bot yourself. If you know Python you can help me write the code over on <a href="http://www.github.com/FlockBots/ReviewBot">GitHub</a>.
-        </p>
+        <div class="faq_item">
+            <h3>Clicking buttons is boring. Can I help you out in some other way?</h3>
+            <p>
+                Of course you can! Using ReviewBot a lot and keeping me up to date with any bugs that might occur is very important. I rarely ever notice the bugs myself once the bot has gone live. 
+            </p>
+            <p>
+                Another way is to contribute to the bot yourself. If you know Python you can help me write the code over on <a href="http://www.github.com/FlockBots/ReviewBot">GitHub</a>.
+            </p>
+        </div>
     </div>
 {% endblock %}
