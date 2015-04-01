@@ -70,6 +70,7 @@ def api_put_comment():
     print(request.get_json())
     db = helpers.Database()
     db.update_comment(request.json['comment_id'], request.json['doc_class'], session['username'])
+    db.close()
     return json.jsonify({'status': 'ready'})
 
 def reset():
@@ -82,4 +83,5 @@ if __name__ == '__main__':
     praw_instance = helpers.reddit.get_praw()
     db = helpers.Database()
     db.create()
+    db.close()
     app.run(host=config.settings['host'], port=config.settings['port'])

@@ -72,6 +72,7 @@ class CommentStore():
 
         # Done updating, reset update bit
         self.redis.setbit(self.update_key, 0, 0)
+        db.close()
         return self.redis.llen(self.comment_key)
 
     def update_comments(self, subreddit, n, db):
@@ -111,6 +112,7 @@ class CommentStore():
         if comment_id:
             db = helpers.Database()
             comment = db.get_comment_by_id(comment_id.decode())
+            db.close()
 
         # If there are little comments available, start updating.
         if self.redis.llen(self.comment_key) < 10:

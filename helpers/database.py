@@ -13,6 +13,9 @@ class Database:
         self.connection = conn
         self.table = 'data'
 
+    def close(self):
+        self.connection.close()
+
     def create(self):
         with closing(self.connection.cursor()) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS {} (
