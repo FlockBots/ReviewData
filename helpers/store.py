@@ -76,8 +76,7 @@ class CommentStore():
             self._update_comments(subreddit, n, db)
 
         # If there are still too little comments, add comments from archive
-        while self.redis.llen(self.comment_key) < n and \
-              self.redis.llen(self.submission_key):
+        while self.redis.llen(self.comment_key) < n:
             self._add_comments_from_archive()
 
         # Done updating, reset update bit
@@ -116,6 +115,8 @@ class CommentStore():
 
         # Get the next submission ID as a string
         submission_id = self.redis.lpop(self.submission_key).decode()
+        if not submission_id:
+            return
         submission = self.reddit.get_submission(submission_id=submission_id)
         submission.replace_more_comments(limit=None, threshold=0)
         comments = praw.helpers.flatten_tree(submission.comments)
