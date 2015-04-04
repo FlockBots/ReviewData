@@ -1,6 +1,3 @@
-[submodule "helpers/--force"]
-	path = helpers/--force
-	url = git@github.com:FlockBots/ArchiveParser.git
 [submodule "helpers/ArchiveParser"]
 	path = helpers/ArchiveParser
-	url = git@github.com:FlockBots/ArchiveParser.git
+    url = http://github.com/FlockBots/ArchiveParser
