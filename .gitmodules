@@ -1,0 +1,3 @@
+[submodule "side_scripts/ArchiveParser"]
+	path = side_scripts/ArchiveParser
+	url = http://github.com/FlockBots/ArchiveParser
