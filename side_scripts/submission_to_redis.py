@@ -11,5 +11,5 @@ if __name__ == '__main__':
     for submission in archive_parser.get_submissions(skip=2000):
         if counter % 500 == 0:
             print('{} submissions parsed'.format(counter))
-        redis.rpush('submissions', submission.id)
+        redis.sadd('submissions', submission.id)
         counter += 1
