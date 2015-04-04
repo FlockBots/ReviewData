@@ -2,12 +2,14 @@ from redis import Redis
 from threading import Thread
 import config
 import helpers
+import praw
 
 class CommentStore():
     def __init__(self, praw_instance=None):
         self.redis = Redis(config.settings['redis_host'])
         self.update_key = 'update'
         self.comment_key = 'comments'
+        self.submission_key = 'submissions'
         self.set_key = 'comments_set'
         self.reddit = praw_instance or helpers.reddit.get_praw()
 
@@ -25,7 +27,7 @@ class CommentStore():
         self.redis.srem(self.set_key, comment_id)
         return comment_id
 
-    def add_comment_id(self, comment_id):
+    def _add_comment_id(self, comment_id):
         """
         Adds a new comment to the store.
 
@@ -35,10 +37,13 @@ class CommentStore():
             comment_id: (string) the ID of the comment.
 
         Returns:
-            None
+            True: if added
+            False: if it already exists
         """
         if self.redis.sadd(self.set_key, comment_id):
             self.redis.rpush(self.comment_key, comment_id)
+            return True
+        return False
 
     def update(self, n=100, threshold=50):
         """
@@ -64,18 +69,23 @@ class CommentStore():
 
         # Add unclassified comments first
         for comment_id in db.get_unclassified_comments():
-            self.add_comment_id(comment_id)
+            self._add_comment_id(comment_id)
 
         # Add new comments from subreddits
         for subreddit in config.settings['subreddits']:
-            self.update_comments(subreddit, n, db)
+            self._update_comments(subreddit, n, db)
+
+        # If there are still too little comments, add comments from archive
+        while self.redis.llen(self.comment_key) < n and \
+              self.redis.llen(self.submission_key):
+            self._add_comments_from_archive()
 
         # Done updating, reset update bit
         self.redis.setbit(self.update_key, 0, 0)
         db.close()
         return self.redis.llen(self.comment_key)
 
-    def update_comments(self, subreddit, n, db):
+    def _update_comments(self, subreddit, n, db):
         """
             Adds new comments from specified subreddit to the local database and CommentStore.
 
@@ -94,8 +104,45 @@ class CommentStore():
                 break
 
             db.insert_comment(comment)
-            self.add_comment_id(comment.id)
+            self._add_comment_id(comment.id)
             n -= 1
+
+    def _add_comments_from_archive(self):
+        """ Get comments from an archived submissions """
+
+        # Create a redis list of submission IDs if it does not exist yet
+        if not self.redis.exists(self.submission_key):
+            self._add_submission_id_from_archive('archive.csv')
+
+        # Get the next submission ID as a string
+        submission_id = self.redis.lpop(self.submission_key).decode()
+        submission = self.reddit.get_submission(submission_id=submission_id)
+        submission.replace_more_comments(limit=None, threshold=0)
+        comments = praw.helpers.flatten_tree(submission.comments)
+        for comment in comments:
+            self._add_comment_id(comment.id)
+
+    def _add_submission_id_from_archive(self, filename):
+        """ Download a new copy of the archive and add every submission to
+            a redis list.
+
+            Args:
+                filename: (string) file to save the archive in
+                          Default: 'archive.csv'
+            Returns:
+                None
+            """
+        # Temporarily set update bit to 0
+        update_bit = self.redis.setbit(self.update_key, 0, 0)
+        archive_parser = helpers.Parser(filename)
+
+        # Download a new archive
+        archive_parser.download(key=config.api['archive_key'])
+        for submission in archive_parser.get_submissions():
+            self.redis.rpush(self.submission_key, submission.id)
+
+        # Reset update bit
+        self.redis.setbit(self.update_key, 0, update_bit)
 
     def next_comment(self, update_on_empty=True):
         """ Gets the next unparsed comment from the database.
