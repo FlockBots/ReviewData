@@ -45,8 +45,8 @@ def classify():
         abort(403)
 
     db = helpers.Database()
-    numbers = db.get_stats(session['username'])
-    return render_template('classify.html', name=session['username'], numbers=numbers)
+    number_reviews, number_total = db.get_stats(session['username'])
+    return render_template('classify.html', name=session['username'], numbers={'reviews': number_reviews, number_total})
 
 @app.route('/api/get_comment')
 def api_get_comment():
