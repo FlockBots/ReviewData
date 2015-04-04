@@ -132,6 +132,10 @@ class CommentStore():
             Returns:
                 None
             """
+        # if already parsing the archive return
+        if self.redis.setbit(self.update_key, 1, 1):
+            return
+
         # Temporarily set update bit to 0
         update_bit = self.redis.setbit(self.update_key, 0, 0)
         archive_parser = helpers.Parser(filename)
@@ -142,6 +146,7 @@ class CommentStore():
             self.redis.rpush(self.submission_key, submission.id)
 
         # Reset update bit
+        self.redis.setbit(self.update_key, 1, 0)
         self.redis.setbit(self.update_key, 0, update_bit)
 
     def next_comment(self, update_on_empty=True):
@@ -160,10 +165,11 @@ class CommentStore():
             db = helpers.Database()
             comment = db.get_comment_by_id(comment_id.decode())
             db.close()
+        print(comment)
 
         # If there are little comments available, start updating.
         if self.redis.llen(self.comment_key) < 10:
             update_thread = Thread(target=self.update)
             update_thread.start()
-
+        print('returning')
         return comment
