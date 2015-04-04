@@ -37,10 +37,13 @@ class CommentStore():
             comment_id: (string) the ID of the comment.
 
         Returns:
-            None
+            True: if added
+            False: if it already exists
         """
         if self.redis.sadd(self.set_key, comment_id):
             self.redis.rpush(self.comment_key, comment_id)
+            return True
+        return False
 
     def update(self, n=100, threshold=50):
         """
