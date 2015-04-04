@@ -27,7 +27,14 @@
                     <li>
                         Welcome,
                         <a href="{{ url_for('classify') }}">{{ name }}</a>!
-                        (<a href="{{ url_for('logout') }}">logout</a>)
+                        {% if numbers %}
+                        (
+                            <span class="number_reviews">{{ numbers['reviews'] }}</span> - 
+                            <span class="number_total">{{ numbers['total'] }}</span>
+                        )
+                        {% else %}
+                            <a href="{{ url_for('logout') }}">logout</a>
+                        {% endif %}
                     </li>
                 {% else %}
                     <li>

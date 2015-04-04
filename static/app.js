@@ -65,6 +65,12 @@ $(document).ready(function(){
             comment_id: $('#comment').attr('data-id')
         }
         app.putComment(data);
+        if(data['doc_class']){
+            var number_reviews = parseInt($('span.number_reviews').text()) + 1
+            $('span.number_reviews').text(number_reviews)
+        }
+        var number_total = parseInt($('span.number_total').text()) + 1
+        $('span.number_total').text(number_total)
     });
 
     $(document).keyup(function(e){

@@ -87,3 +87,21 @@ class Database:
             rows = c.execute(query)
             results = [row['id'] for row in rows]
         return results
+
+    def get_stats(self, username):
+        """Get some statistics about a user.
+
+        Args:
+            username: (string) name of the user
+        Returns:
+            A tuple: (comments classified as review, total number of comments classified)
+        """
+        reviews_query = 'SELECT count(id) as count FROM {} WHERE user = ? AND class = 1'.format(self.table)
+        total_query = 'SELECT count(id) as count FROM {} WHERE user = ?'.format(self.table)
+        with closing(self.connection.cursor()) as c:
+            result_reviews = c.execute(reviews_query, (username,))
+            result_reviews = result_reviews.fetchone()['count']
+            result_total = c.execute(total_query, (username,))
+            result_total = result_total.fetchone()['count']
+        return result_reviews, result_total
+

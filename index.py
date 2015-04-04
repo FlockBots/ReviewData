@@ -43,8 +43,10 @@ def logout():
 def classify():
     if not helpers.reddit.is_authorised(session):
         abort(403)
-    
-    return render_template('classify.html', name=session['username'])
+
+    db = helpers.Database()
+    numbers = db.get_stats(session['username'])
+    return render_template('classify.html', name=session['username'], numbers=numbers)
 
 @app.route('/api/get_comment')
 def api_get_comment():
