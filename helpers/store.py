@@ -75,6 +75,7 @@ class CommentStore():
         for subreddit in config.settings['subreddits']:
             self.update_comments(subreddit, n, db)
 
+        # If there are still too little comments, add comments from archive
         while self.redis.llen(self.comment_key) < n and \
               self.redis.llen(self.submission_key):
             self.get_comments_from_archive()
@@ -106,18 +107,42 @@ class CommentStore():
             self.add_comment_id(comment.id)
             n -= 1
 
-    def get_comments_from_archive(self):
-        submission_id = self.redis.lpop(self.submission_key)
+    def add_comments_from_archive(self):
+        """ Get comments from an archived submissions """
+
+        # Create a redis list of submission IDs if it does not exist yet
+        if not self.redis.exists(self.submission_key):
+            self.add_submission_id_from_archive('archive.csv')
+
+        # Get the next submission ID as a string
+        submission_id = self.redis.lpop(self.submission_key).decode()
         submission = self.reddit.get_submission(submission_id=submission_id)
+        submission.replace_more_comments(limit=None, threshold=0)
         comments = praw.helpers.flatten_tree(submission.comments)
         for comment in comments:
             self.add_comment_id(comment.id)
 
     def add_submission_id_from_archive(self, filename):
+        """ Download a new copy of the archive and add every submission to
+            a redis list.
+
+            Args:
+                filename: (string) file to save the archive in
+                          Default: 'archive.csv'
+            Returns:
+                None
+            """
+        # Temporarily set update bit to 0
+        self.redis.setbit(self.update_key, 0, 0)
         archive_parser = helpers.Parser(filename)
-        archive_parser.download()
+
+        # Download a new archive
+        archive_parser.download(key=config.api['archive_key'])
         for submission in archive_parser.get_submissions():
             self.redis.rpush(self.submission_key, submission.id)
+
+        # Resume updating publicly
+        self.redis.setbit(self.update_key, 0, 1)
 
     def next_comment(self, update_on_empty=True):
         """ Gets the next unparsed comment from the database.
