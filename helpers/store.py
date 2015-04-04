@@ -130,6 +130,8 @@ class CommentStore():
         submission.replace_more_comments(limit=None, threshold=0)
         comments = praw.helpers.flatten_tree(submission.comments)
         for comment in comments:
+            if len(comment.body) < 150:
+                continue
             db.insert_comment(comment)
             self._add_comment_id(comment.id)
 
