@@ -117,10 +117,12 @@ class CommentStore():
         submission_id = self.redis.lpop(self.submission_key).decode()
         if not submission_id:
             return
+        db = helpers.Database()
         submission = self.reddit.get_submission(submission_id=submission_id)
         submission.replace_more_comments(limit=None, threshold=0)
         comments = praw.helpers.flatten_tree(submission.comments)
         for comment in comments:
+            db.insert_comment(comment)
             self._add_comment_id(comment.id)
 
     def _add_submission_id_from_archive(self, filename):
@@ -169,7 +171,7 @@ class CommentStore():
         print(comment)
 
         # If there are little comments available, start updating.
-        if self.redis.llen(self.comment_key) < 10:
+        if self.redis.llen(self.comment_key) < 20:
             update_thread = Thread(target=self.update)
             update_thread.start()
         print('returning')
