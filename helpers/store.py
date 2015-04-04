@@ -2,12 +2,14 @@ from redis import Redis
 from threading import Thread
 import config
 import helpers
+import praw
 
 class CommentStore():
     def __init__(self, praw_instance=None):
         self.redis = Redis(config.settings['redis_host'])
         self.update_key = 'update'
         self.comment_key = 'comments'
+        self.submission_key = 'submissions'
         self.set_key = 'comments_set'
         self.reddit = praw_instance or helpers.reddit.get_praw()
 
@@ -70,6 +72,10 @@ class CommentStore():
         for subreddit in config.settings['subreddits']:
             self.update_comments(subreddit, n, db)
 
+        while self.redis.llen(self.comment_key) < n and \
+              self.redis.llen(self.submission_key):
+            self.get_comments_from_archive()
+
         # Done updating, reset update bit
         self.redis.setbit(self.update_key, 0, 0)
         db.close()
@@ -96,6 +102,19 @@ class CommentStore():
             db.insert_comment(comment)
             self.add_comment_id(comment.id)
             n -= 1
+
+    def get_comments_from_archive(self):
+        submission_id = self.redis.lpop(self.submission_key)
+        submission = self.reddit.get_submission(submission_id=submission_id)
+        comments = praw.helpers.flatten_tree(submission.comments)
+        for comment in comments:
+            self.add_comment_id(comment.id)
+
+    def add_submission_id_from_archive(self, filename):
+        archive_parser = helpers.Parser(filename)
+        archive_parser.download()
+        for submission in archive_parser.get_submissions():
+            self.redis.rpush(self.submission_key, submission.id)
 
     def next_comment(self, update_on_empty=True):
         """ Gets the next unparsed comment from the database.
