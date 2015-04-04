@@ -133,7 +133,7 @@ class CommentStore():
                 None
             """
         # Temporarily set update bit to 0
-        self.redis.setbit(self.update_key, 0, 0)
+        update_bit = self.redis.setbit(self.update_key, 0, 0)
         archive_parser = helpers.Parser(filename)
 
         # Download a new archive
@@ -141,8 +141,8 @@ class CommentStore():
         for submission in archive_parser.get_submissions():
             self.redis.rpush(self.submission_key, submission.id)
 
-        # Resume updating publicly
-        self.redis.setbit(self.update_key, 0, 1)
+        # Reset update bit
+        self.redis.setbit(self.update_key, 0, update_bit)
 
     def next_comment(self, update_on_empty=True):
         """ Gets the next unparsed comment from the database.
