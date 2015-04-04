@@ -1,3 +1,0 @@
-[submodule "helpers/ArchiveParser"]
-	path = helpers/ArchiveParser
-    url = http://github.com/FlockBots/ArchiveParser

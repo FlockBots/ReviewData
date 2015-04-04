@@ -3,6 +3,7 @@ from threading import Thread
 import config
 import helpers
 import praw
+import logging
 
 class CommentStore():
     def __init__(self, praw_instance=None):
@@ -12,6 +13,13 @@ class CommentStore():
         self.submission_key = 'submissions'
         self.set_key = 'comments_set'
         self.reddit = praw_instance or helpers.reddit.get_praw()
+
+        logging.basicConfig(
+            filename='redis.log',
+            level=logging.INFO,
+            format = '{asctime} | {levelname:^8} | {message}',
+            style='{'
+        )
 
     def reset(self):
         self.redis.setbit(self.update_key, 0, 0)
@@ -111,10 +119,10 @@ class CommentStore():
 
         # Create a redis list of submission IDs if it does not exist yet
         if not self.redis.exists(self.submission_key):
-            self._add_submission_id_from_archive('archive.csv')
+            logging.error('No submission set in Redis.')
 
         # Get the next submission ID as a string
-        submission_id = self.redis.lpop(self.submission_key).decode()
+        submission_id = self.redis.spop(self.submission_key).decode()
         if not submission_id:
             return
         db = helpers.Database()
@@ -124,37 +132,6 @@ class CommentStore():
         for comment in comments:
             db.insert_comment(comment)
             self._add_comment_id(comment.id)
-
-    def _add_submission_id_from_archive(self, filename):
-        """ Download a new copy of the archive and add every submission to
-            a redis list.
-
-            Args:
-                filename: (string) file to save the archive in
-                          Default: 'archive.csv'
-            Returns:
-                None
-            """
-        # if already parsing the archive return
-        if self.redis.setbit(self.update_key, 1, 1):
-            return
-
-        # Temporarily set update bit to 0
-        update_bit = self.redis.setbit(self.update_key, 0, 0)
-        archive_parser = helpers.Parser(filename)
-
-        # Download a new archive
-        archive_parser.download(key=config.api['archive_key'])
-        counter = 0
-        for submission in archive_parser.get_submissions():
-            if counter % 500 == 0:
-                print('{} submissions parsed'.format(counter))
-            self.redis.rpush(self.submission_key, submission.id)
-            counter += 1
-
-        # Reset update bit
-        self.redis.setbit(self.update_key, 1, 0)
-        self.redis.setbit(self.update_key, 0, update_bit)
 
     def next_comment(self, update_on_empty=True):
         """ Gets the next unparsed comment from the database.
