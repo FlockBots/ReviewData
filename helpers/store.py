@@ -145,8 +145,12 @@ class CommentStore():
 
         # Download a new archive
         archive_parser.download(key=config.api['archive_key'])
+        counter = 0
         for submission in archive_parser.get_submissions():
+            if counter % 500 == 0:
+                print('{} submissions parsed'.format(counter))
             self.redis.rpush(self.submission_key, submission.id)
+            counter += 1
 
         # Reset update bit
         self.redis.setbit(self.update_key, 1, 0)
@@ -168,11 +172,9 @@ class CommentStore():
             db = helpers.Database()
             comment = db.get_comment_by_id(comment_id.decode())
             db.close()
-        print(comment)
 
         # If there are little comments available, start updating.
         if self.redis.llen(self.comment_key) < 20:
             update_thread = Thread(target=self.update)
             update_thread.start()
-        print('returning')
         return comment
