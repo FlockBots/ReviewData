@@ -20,7 +20,6 @@ $(document).ready(function(){
         $('#comment #title').text('Loading new comments...');
         var text = '<p>Welp, good work. We temporarily ran out of comments. ';
         text += 'Please come back later for more comments.</p>';
-        text += '<img src="/static/load.gif" alt="Loading..."/>';
         $('#comment #text').html(text);
         $('#comment #author').attr('href', 'http://www.reddit.com/');
         $('#comment #author').text('Browse reddit');
