@@ -27,7 +27,7 @@ class CommentStore():
         self.redis.srem(self.set_key, comment_id)
         return comment_id
 
-    def add_comment_id(self, comment_id):
+    def _add_comment_id(self, comment_id):
         """
         Adds a new comment to the store.
 
@@ -69,23 +69,23 @@ class CommentStore():
 
         # Add unclassified comments first
         for comment_id in db.get_unclassified_comments():
-            self.add_comment_id(comment_id)
+            self._add_comment_id(comment_id)
 
         # Add new comments from subreddits
         for subreddit in config.settings['subreddits']:
-            self.update_comments(subreddit, n, db)
+            self._update_comments(subreddit, n, db)
 
         # If there are still too little comments, add comments from archive
         while self.redis.llen(self.comment_key) < n and \
               self.redis.llen(self.submission_key):
-            self.get_comments_from_archive()
+            self._add_comments_from_archive()
 
         # Done updating, reset update bit
         self.redis.setbit(self.update_key, 0, 0)
         db.close()
         return self.redis.llen(self.comment_key)
 
-    def update_comments(self, subreddit, n, db):
+    def _update_comments(self, subreddit, n, db):
         """
             Adds new comments from specified subreddit to the local database and CommentStore.
 
@@ -104,15 +104,15 @@ class CommentStore():
                 break
 
             db.insert_comment(comment)
-            self.add_comment_id(comment.id)
+            self._add_comment_id(comment.id)
             n -= 1
 
-    def add_comments_from_archive(self):
+    def _add_comments_from_archive(self):
         """ Get comments from an archived submissions """
 
         # Create a redis list of submission IDs if it does not exist yet
         if not self.redis.exists(self.submission_key):
-            self.add_submission_id_from_archive('archive.csv')
+            self._add_submission_id_from_archive('archive.csv')
 
         # Get the next submission ID as a string
         submission_id = self.redis.lpop(self.submission_key).decode()
@@ -120,9 +120,9 @@ class CommentStore():
         submission.replace_more_comments(limit=None, threshold=0)
         comments = praw.helpers.flatten_tree(submission.comments)
         for comment in comments:
-            self.add_comment_id(comment.id)
+            self._add_comment_id(comment.id)
 
-    def add_submission_id_from_archive(self, filename):
+    def _add_submission_id_from_archive(self, filename):
         """ Download a new copy of the archive and add every submission to
             a redis list.
 
