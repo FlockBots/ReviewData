@@ -68,9 +68,11 @@ def api_put_comment():
     if 'application/json' not in request.headers['Content-Type'].lower():
         abort(415)
     db = helpers.Database()
-    db.update_comment(request.json['comment_id'],
-        request.json['doc_class'],
-        session['username'])
+    db_comment = db.get_comment_by_id(request.json['comment_id'])
+    if db_comment and not db_comment['class']:
+        db.update_comment(request.json['comment_id'],
+            request.json['doc_class'],
+            session['username'])
     db.close()
     return json.jsonify({'status': 'ready'})
 
